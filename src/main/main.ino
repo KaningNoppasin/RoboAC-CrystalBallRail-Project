@@ -2,116 +2,119 @@
 #include "pneumatic.h"
 #include "initIO.h"
 
-/* ---------- Phase 1 ---------- */
-
 AccelStepper StepperLift(1, stepperLiftDIR, stepperLiftPUL);
 
-Pneumatic PneumaticPh1A(pneumaticPh1A);
-Pneumatic PneumaticPh1B(pneumaticPh1B);
-Pneumatic PneumaticPh1C(pneumaticPh1C);
+Pneumatic PneumaticA(pneumaticA);
+Pneumatic PneumaticB(pneumaticB);
+Pneumatic PneumaticC(pneumaticC);
 
-Pneumatic PneumaticPh1Kick(pneumaticPh1Kick);
-Pneumatic PneumaticPh1Store(pneumaticPh1Store);
+Pneumatic PneumaticKick(pneumaticKick);
+Pneumatic PneumaticStore(pneumaticStore);
 
-/* ---------- Phase 2 ---------- */
+int speedx = 500;
 
-Pneumatic PneumaticPh2A(pneumaticPh2A);
-Pneumatic PneumaticPh2B(pneumaticPh2B);
-Pneumatic PneumaticPh2C(pneumaticPh2C);
-
-void main(){
+void main_(){
     // TODO: Step1
-    while (digitalRead(switchS1PowerPh1));
+    // while (digitalRead(switchS1Power));
+    digitalWrite(motorA7_F, LOW);
+    digitalWrite(motorA7_B, HIGH);
+    digitalWrite(motorA8_F, LOW);
+    digitalWrite(motorA8_B, HIGH);
+    StepperLift.setSpeed(-speedx);
+    while (StepperLift.currentPosition() != -290) StepperLift.runSpeed();
 
     // TODO: Step2
     while (true)
     {
+        Serial.println("First While");
         if (!digitalRead(switchS2A)){
             // TODO: Step3
-            // PneumaticPh1A OFF
-            PneumaticPh1A.offPneumatic();
+            // PneumaticA OFF
+            PneumaticA.onPneumatic();
             break;
         }
         else if (!digitalRead(switchS3B)){
             // TODO: Step3
-            // PneumaticPh1B OFF
-            PneumaticPh1B.offPneumatic();
+            // PneumaticB OFF
+            PneumaticB.onPneumatic();
             break;
         }
         else if (!digitalRead(switchS4C)){
             // TODO: Step3
-            // PneumaticPh1C OFF
-            PneumaticPh1C.offPneumatic();
+            // PneumaticC OFF
+            PneumaticC.onPneumatic();
             break;
         }
     }
 
     // TODO: Step4
-    while (digitalRead(switchS5));
-    // PneumaticPh1... ON
-    if (PneumaticPh1A.isOff()) PneumaticPh1A.onPneumatic();
-    if (PneumaticPh1B.isOff()) PneumaticPh1B.onPneumatic();
-    if (PneumaticPh1C.isOff()) PneumaticPh1C.onPneumatic();
-
-    // StepperLift UP
-    // PneumaticPh1Kick ON
-    PneumaticPh1Kick.onPneumatic();
-    // StepperLift Down
-    // PneumaticPh1Kick OFF
-    PneumaticPh1Kick.offPneumatic();
-
-    // TODO: Step5
-    while (digitalRead(switchS6PowerPh2));
-
-    while (true)
-    {
-        if (!digitalRead(switchS7A)){
-            // PneumaticPh2A OFF
-            PneumaticPh2A.offPneumatic();
-            break;
-        }
-        else if (!digitalRead(switchS8B)){
-            // PneumaticPh2B OFF
-            PneumaticPh2B.offPneumatic();
-            break;
-        }
-        else if (!digitalRead(switchS9C)){
-            // PneumaticPh2C OFF
-            PneumaticPh2C.offPneumatic();
-            break;
-        }
+    // while (digitalRead(switchS5));
+    while (digitalRead(switchS5)){
+        Serial.println("digitalRead(switchS5)");
+    }
+    // !
+    // Pneumatic... ON
+    if (PneumaticA.isOn()) {
+        PneumaticA.offPneumatic();
+        digitalWrite(motorA7_F, LOW);
+        digitalWrite(motorA7_B, LOW);
+        digitalWrite(motorA8_F, HIGH);
+        digitalWrite(motorA8_B, LOW);
+    }
+    if (PneumaticB.isOn()) {
+        PneumaticB.offPneumatic();
+        digitalWrite(motorA7_F, LOW);
+        digitalWrite(motorA7_B, HIGH);
+        digitalWrite(motorA8_F, LOW);
+        digitalWrite(motorA8_B, HIGH);
+    }
+    if (PneumaticC.isOn()) {
+        PneumaticC.offPneumatic();
+        digitalWrite(motorA7_F, HIGH);
+        digitalWrite(motorA7_B, LOW);
+        digitalWrite(motorA8_F, LOW);
+        digitalWrite(motorA8_B, HIGH);
     }
 
-    if (PneumaticPh2A.isOff()) PneumaticPh2A.onPneumatic();
-    if (PneumaticPh2B.isOff()) PneumaticPh2B.onPneumatic();
-    if (PneumaticPh2C.isOff()) PneumaticPh2C.onPneumatic();
+    // StepperLift UP
+    // StepperLift.moveTo(-1330);
+    // while (StepperLift.run());
 
-    // pneumaticPh1Store OFF
-    PneumaticPh1Store.offPneumatic();
+    StepperLift.setSpeed(-speedx);
+    while (StepperLift.currentPosition() != -1317) StepperLift.runSpeed();
+    delay(500);
 
-    // pneumaticPh1Store ON
-    PneumaticPh1Store.onPneumatic();
+    // PneumaticKick ON
+    PneumaticKick.onPneumatic();
+    delay(1000);
+    PneumaticKick.offPneumatic();
+
+    // StepperLift Down
+    // PneumaticKick OFF
+    // StepperLift.moveTo(-20);
+    // while (StepperLift.run());
+
+    StepperLift.setSpeed(speedx);
+    while (StepperLift.currentPosition() != 0) StepperLift.runSpeed();
+
+    // TODO: Step5
+
+    while (digitalRead(LimitStore));
+
+    // pneumaticStore ON
+    PneumaticStore.onPneumatic();
+    delay(5000);
+    // pneumaticStore OFF
+    PneumaticStore.offPneumatic();
+
 
     // TODO: Step6
 }
 
-void setPneumaticDefaultStage(){
-    PneumaticPh1A.onPneumatic();
-    PneumaticPh1B.onPneumatic();
-    PneumaticPh1C.onPneumatic();
-
-    PneumaticPh1Kick.offPneumatic();
-    PneumaticPh1Store.onPneumatic();
-
-    PneumaticPh2A.onPneumatic();
-    PneumaticPh2B.onPneumatic();
-    PneumaticPh2C.onPneumatic();
-}
-
 void getInputValue(){
-    for (int i = 0;i < sizeof(pinIN) / sizeof(int);i++){
+    for (int i = 0;i < sizeof(pinIN) / sizeof(pinIN[0]);i++){
         Serial.print("Index ");
-        Serial.print(i);
+        Serial.print(i + 1);
         Serial.print(":");
         Serial.print(digitalRead(pinIN[i]));
         Serial.print("\t");
@@ -119,13 +122,42 @@ void getInputValue(){
     Serial.println();
 }
 
+void serialStep(){
+    if (Serial.available() > 0){
+        int position = Serial.readStringUntil('\n').toInt();
+        // StepperLift.moveTo(-position);
+        // while (StepperLift.run());
+        // -1317
+        int speedx = position > StepperLift.currentPosition() ? 500 : -500;
+        StepperLift.setSpeed(speedx);
+        while (StepperLift.currentPosition() != position) StepperLift.runSpeed();
+    }
+}
+
 void setup(){
     Serial.begin(115200);
-    for (int i = 0;i < sizeof(pinIN) / sizeof(int);i++) pinMode(pinIN[i], INPUT_PULLUP);
-    for (int i = 0;i < sizeof(pinOUT) / sizeof(int);i++) pinMode(pinOUT[i], OUTPUT);
-    setPneumaticDefaultStage();
+    Serial.println("SetUP <<");
+    for (int i = 0;i < sizeof(pinIN) / sizeof(pinIN[0]);i++) pinMode(pinIN[i], INPUT);
+    for (int i = 0;i < sizeof(pinOUT) / sizeof(pinOUT[0]);i++) pinMode(pinOUT[i], OUTPUT);
+    StepperLift.setMaxSpeed(10000);
+    StepperLift.setAcceleration(500);
+
+    // Step-lift 0 >> 330 >> 1330
+    delay(2000);
+    // StepperLift.moveTo(-330);
+    // while (StepperLift.run());
+    StepperLift.setSpeed(-speedx);
+    while (StepperLift.currentPosition() != -290) StepperLift.runSpeed();
+
+
+    digitalWrite(motorA7_F, LOW);
+    digitalWrite(motorA7_B, HIGH);
+    digitalWrite(motorA8_F, LOW);
+    digitalWrite(motorA8_B, HIGH);
 }
 
 void loop(){
-
+    // getInputValue();
+    // serialStep();
+    main_();
 }

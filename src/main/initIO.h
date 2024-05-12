@@ -3,79 +3,65 @@
 
 /* -------------------- OUTPUT -------------------- */
 
-/* ---------- Phase 1 ---------- */
-
 /*
-* PneumaticPh1
 
--------
+MA7-----
     A   \
 ------   ------|
     B   | Lift |
 ------   ------|
     C   /
--------
+MA8-----
 
 */
 
-#define pneumaticPh1A 1
-#define pneumaticPh1B 1
-#define pneumaticPh1C 1
+#define pneumaticA 13
+#define pneumaticB 12
+#define pneumaticC 11
 
 // Position A5
-#define pneumaticPh1Kick 1
+#define pneumaticKick 10
 // Position A6
-#define pneumaticPh1Store 1
+#define pneumaticStore 9
 
 // Stepper
-#define stepperLiftDIR 1
-#define stepperLiftPUL 1
+#define stepperLiftDIR 2
+#define stepperLiftPUL 3
 
 // Motor
-#define motorA7 1
-#define motorA8 1
+#define motorA7_F 8
+#define motorA7_B 7
 
-/* ---------- Phase 2 ---------- */
+#define motorA8_F 6
+#define motorA8_B 5
 
-// #define pneumaticPh2A 1
-// #define pneumaticPh2B 1
-// #define pneumaticPh2C 1
 
 /* -------------------- INPUT -------------------- */
 
-/* ---------- Phase 1 ---------- */
-
-#define switchS1PowerPh1 1
+#define switchS1Power 4
 
 // Pneumatic Control
-#define switchS2A 1
-#define switchS3B 1
-#define switchS4C 1
+#define switchS2A A5
+#define switchS3B A4
+#define switchS4C A3
 
 // limit Switch => lift
-#define switchS5 1
+#define switchS5 A0
 
-#define liftLimitUP 1
-#define liftLimitDOWN 1
+#define liftLimitDOWN A2
+#define LimitStore A1
 
-/* ---------- Phase 2 ---------- */
 
-#define switchS6PowerPh2 1
-
-// Pneumatic Control
-#define switchS7A 1
-#define switchS8B 1
-#define switchS9C 1
-
-int pinIN[9] = {
-                switchS1PowerPh1,
+int pinIN[7] = {
+                switchS1Power,
                 switchS2A,switchS3B,switchS4C,
                 switchS5,
-                switchS6PowerPh2,
-                switchS7A,switchS8B,switchS9C,
+                liftLimitDOWN,
+                LimitStore,
                 };
-int pinOUT[2] = {
-                motorA7,motorA8
+int pinOUT[4] = {
+                motorA7_F,motorA7_B,
+                motorA8_F,motorA8_B,
                 };
 
 #endif
