@@ -1,8 +1,10 @@
 #include <AccelStepper.h>
+#include "StepperController.h"
 #include "pneumatic.h"
 #include "initIO.h"
 
-AccelStepper StepperLift(1, stepperLiftDIR, stepperLiftPUL);
+// StepperController StepperLift(1, stepperLiftDIR, stepperLiftPUL);
+StepperController StepperLift(1, stepperLiftPUL, stepperLiftDIR);
 
 Pneumatic PneumaticA(pneumaticA);
 Pneumatic PneumaticB(pneumaticB);
@@ -12,6 +14,25 @@ Pneumatic PneumaticKick(pneumaticKick);
 Pneumatic PneumaticStore(pneumaticStore);
 
 int speedx = 500;
+int stepperLiftPositionA = 0;
+int stepperLiftPositionB = -290;
+int stepperLiftPositionC = -1317;
+
+/*
+|--- Lift ---|
+|            | Position (C) => -1317
+|            |
+|            |
+|            |
+|            | Position (B) => -290
+|            |
+|            |
+|            |
+|            |
+|--  Limit --| Position (A) => 0
+
+*/
+
 
 void main_(){
     // TODO: Step1
@@ -20,8 +41,10 @@ void main_(){
     digitalWrite(motorA7_B, HIGH);
     digitalWrite(motorA8_F, LOW);
     digitalWrite(motorA8_B, HIGH);
+
+    // A => B
     StepperLift.setSpeed(-speedx);
-    while (StepperLift.currentPosition() != -290) StepperLift.runSpeed();
+    while (StepperLift.currentPosition() != stepperLiftPositionB) StepperLift.runSpeed();
 
     // TODO: Step2
     while (true)
@@ -77,11 +100,9 @@ void main_(){
     }
 
     // StepperLift UP
-    // StepperLift.moveTo(-1330);
-    // while (StepperLift.run());
-
+    // B => C
     StepperLift.setSpeed(-speedx);
-    while (StepperLift.currentPosition() != -1317) StepperLift.runSpeed();
+    while (StepperLift.currentPosition() != stepperLiftPositionC) StepperLift.runSpeed();
     delay(500);
 
     // PneumaticKick ON
@@ -91,15 +112,21 @@ void main_(){
 
     // StepperLift Down
     // PneumaticKick OFF
-    // StepperLift.moveTo(-20);
-    // while (StepperLift.run());
 
+    // C => A
     StepperLift.setSpeed(speedx);
-    while (StepperLift.currentPosition() != 0) StepperLift.runSpeed();
+    while (StepperLift.currentPosition() != stepperLiftPositionA) StepperLift.runSpeed();
 
     // TODO: Step5
 
     while (digitalRead(LimitStore));
+
+    // Sent TX RX
+    /*
+        payload = {
+            status : processing - done
+        }
+    */
 
     // pneumaticStore ON
     PneumaticStore.onPneumatic();
@@ -139,16 +166,12 @@ void setup(){
     Serial.println("SetUP <<");
     for (int i = 0;i < sizeof(pinIN) / sizeof(pinIN[0]);i++) pinMode(pinIN[i], INPUT);
     for (int i = 0;i < sizeof(pinOUT) / sizeof(pinOUT[0]);i++) pinMode(pinOUT[i], OUTPUT);
-    StepperLift.setMaxSpeed(10000);
-    StepperLift.setAcceleration(500);
-
-    // Step-lift 0 >> 330 >> 1330
+    StepperLift.setLimitPositivePosition(0);StepperLift.setLimitNegativePosition(1350);
     delay(2000);
-    // StepperLift.moveTo(-330);
-    // while (StepperLift.run());
-    StepperLift.setSpeed(-speedx);
-    while (StepperLift.currentPosition() != -290) StepperLift.runSpeed();
 
+    // A => B
+    StepperLift.setSpeedAndLimitPositionOutOfRange(-speedx);
+    while (StepperLift.currentPosition() != stepperLiftPositionB) StepperLift.runSpeed();
 
     digitalWrite(motorA7_F, LOW);
     digitalWrite(motorA7_B, HIGH);
@@ -157,7 +180,5 @@ void setup(){
 }
 
 void loop(){
-    // getInputValue();
-    // serialStep();
     main_();
 }
