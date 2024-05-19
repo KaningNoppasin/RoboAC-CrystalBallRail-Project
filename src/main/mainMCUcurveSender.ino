@@ -36,37 +36,35 @@ String res = "";
 |--  Limit --| Position (A) => 0
 
 */
-void Sender_serializeJson(String status)
+
+
+
+String Receiver()
 {
-    StaticJsonDocument<200> payload;
-    payload["status"] = status;
+    const int bufferSize = 64;
+    static char buffer[bufferSize];
+    static int index = 0;
 
-    serializeJson(payload, SERIAL);
-}
-
-void Receiver_deserializeJson(){
-    if (SERIAL.available())
+    while (SERIAL.available() > 0)
     {
-        StaticJsonDocument<300> response;
+        char incomingByte = SERIAL.read();
 
-        DeserializationError err = deserializeJson(response, SERIAL);
-
-        if (err == DeserializationError::Ok)
+        if (index < bufferSize - 1)
         {
-            res = response["status"].as<String>();
+            buffer[index++] = incomingByte;
         }
-        else
-        {
-            // Print error to the "debug" serial port
-            // Serial.print("deserializeJson() returned ");
-            // Serial.println(err.c_str());
 
-            // Flush all bytes in the "link" serial port buffer
-            while (SERIAL.available() > 0)
-                SERIAL.read();
+        if (incomingByte == '\n')
+        {
+            buffer[index] = '\0';
+            String data = String(buffer);
+            index = 0;
+            return data;
         }
     }
+    return "";
 }
+
 
 void setHomeLift(){
     StepperLift.setSpeed(800);
@@ -177,16 +175,25 @@ void main_(){
     */
    // * >> TX RX Serial with Json
     // Sender_serializeJson("done");
-    SERIAL.println("done");
+    // SERIAL.println("done");
+    SERIAL.write("done\n");
     delay(500);
 
-    while (true)
-    {
-        if (SERIAL.available() > 0){
-            if (SERIAL.readStringUntil('\n') == "start"){
-                break;
-            }
-        }
+    // while (true)
+    // {
+    //     if (SERIAL.available() > 0){
+    //         if (SERIAL.readStringUntil('\n') == "start"){
+    //             break;
+    //         }
+    //     }
+    // }
+    // String data = Receiver();
+    // while (data != "start\n"){
+    //     data = Receiver();
+    // }
+    while (true){
+        String data = Receiver();
+        if (data == "start\n") break;
     }
 
     // while (res != "start")
@@ -324,7 +331,6 @@ void main_input(int input){
     // TODO: Step6
 }
 
-
 void getInputValue(){
     for (int i = 0;i < sizeof(pinIN) / sizeof(pinIN[0]);i++){
         Serial.print("Index ");
@@ -348,13 +354,12 @@ void serialStep(){
 
 void setup(){
     Serial.begin(115200);
+    SERIAL.begin(115200);
     // Serial.println("SetUP <<");
     // Serial.println("Hello from Sender");
     for (int i = 0;i < sizeof(pinIN) / sizeof(pinIN[0]);i++) pinMode(pinIN[i], INPUT);
     for (int i = 0;i < sizeof(pinOUT) / sizeof(pinOUT[0]);i++) pinMode(pinOUT[i], OUTPUT);
     StepperLift.setLimitPositivePosition(500);StepperLift.setLimitNegativePosition(1350);
-
-    Serial.println("done");
 
     setHomeLift();
     delay(500);
@@ -369,7 +374,7 @@ void setup(){
     digitalWrite(motorA8_F, LOW);
     digitalWrite(motorA8_B, HIGH);
 
-    // for (int round = 0; round < 10; round++)
+    // for (int round = 0; round < 1; round++)
     // {
     //     for (int i = 1; i < 4; i++)
     //     {
@@ -380,6 +385,6 @@ void setup(){
 
 void loop(){
     // getInputValue();
-    // main_();
+    main_();
     // serialStep();
 }

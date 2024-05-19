@@ -1,6 +1,5 @@
 // * Receiver
 #include <AccelStepper.h>
-#include <ArduinoJson.h>
 #include "StepperController.h"
 #include "pneumatic.h"
 #include "initIO.h"
@@ -39,36 +38,32 @@ String res = "";
 |--  Limit --| Position (A) => 0
 
 */
-void Sender_serializeJson(String status)
+
+
+String Receiver()
 {
-    StaticJsonDocument<200> payload;
-    payload["status"] = status;
+    const int bufferSize = 64;
+    static char buffer[bufferSize];
+    static int index = 0;
 
-    serializeJson(payload, SERIAL);
-}
-
-void Receiver_deserializeJson(){
-    if (SERIAL.available())
+    while (SERIAL.available() > 0)
     {
-        StaticJsonDocument<300> response;
+        char incomingByte = SERIAL.read();
 
-        DeserializationError err = deserializeJson(response, SERIAL);
-
-        if (err == DeserializationError::Ok)
+        if (index < bufferSize - 1)
         {
-            res = response["status"].as<String>();
+            buffer[index++] = incomingByte;
         }
-        else
-        {
-            // Print error to the "debug" serial port
-            // Serial.print("deserializeJson() returned ");
-            // Serial.println(err.c_str());
 
-            // Flush all bytes in the "link" serial port buffer
-            while (SERIAL.available() > 0)
-                SERIAL.read();
+        if (incomingByte == '\n')
+        {
+            buffer[index] = '\0';
+            String data = String(buffer);
+            index = 0;
+            return data;
         }
     }
+    return "";
 }
 
 void setHomeLift(){
@@ -93,38 +88,31 @@ void main_(){
     // while (StepperLift.currentPosition() != stepperLiftPositionB) StepperLift.runSpeed();
 
    // * >> TX RX Serial with Json
-    // Receiver_deserializeJson();
-    // while (res != "done")
-    // {
-    //     Receiver_deserializeJson();
-    //     PneumaticA.onPneumatic();
-    //     delay(2000);
-    //     Receiver_deserializeJson();
-    //     PneumaticA.offPneumatic();
-    //     delay(2000);
+    // Serial.println("loop");
+    // String data = Receiver();
+    // while (data != "done\n"){
+    //     delay(1000);
+    //     data = Receiver();
+    //     // Serial.println(data);
     // }
-    // res = "";
 
-    // while (true)
-    // {
-    //     Serial.println("w");
-    //     if (SERIAL.available() > 0){
-    //         if (SERIAL.readStringUntil('\n') == "done"){
-    //             break;
-    //         }
-    //     }
-    // }
+    while (true){
+        String data = Receiver();
+        if (data == "done\n") break;
+    }
+
 
     // TODO: Step2
     while (true)
     {
-        if (!digitalRead(switchS2A)){
-            // TODO: Step3
-            // PneumaticA OFF
-            PneumaticA.onPneumatic();
-            break;
-        }
-        else if (!digitalRead(switchS3B)){
+        // ! Bug !!!
+        // if (!digitalRead(switchS2A)){
+        //     // TODO: Step3
+        //     // PneumaticA OFF
+        //     PneumaticA.onPneumatic();
+        //     break;
+        // }
+        if (!digitalRead(switchS3B)){
             // TODO: Step3
             // PneumaticB OFF
             PneumaticB.onPneumatic();
@@ -150,6 +138,7 @@ void main_(){
    // * >> TX RX Serial with Json
     // Sender_serializeJson("start");
     // SERIAL.println("start");
+    SERIAL.write("start\n");
 
     // !
     // Pneumatic... ON
@@ -338,6 +327,7 @@ void main_input(int input){
 }
 
 
+
 void getInputValue(){
     for (int i = 0;i < sizeof(pinIN) / sizeof(pinIN[0]);i++){
         Serial.print("Index ");
@@ -361,14 +351,12 @@ void serialStep(){
 
 void setup(){
     Serial.begin(115200);
+    SERIAL.begin(115200);
     // Serial.println("SetUP <<");
     // Serial.println("Hello from Receiver");
     for (int i = 0;i < sizeof(pinIN) / sizeof(pinIN[0]);i++) pinMode(pinIN[i], INPUT);
     for (int i = 0;i < sizeof(pinOUT) / sizeof(pinOUT[0]);i++) pinMode(pinOUT[i], OUTPUT);
     StepperLift.setLimitPositivePosition(500);StepperLift.setLimitNegativePosition(1350);
-    // delay(2000);
-    // StepperLift.setAcceleration(500);
-    // StepperLift.setMaxSpeed(10000);
     setHomeLift();
     delay(500);
 
@@ -382,18 +370,9 @@ void setup(){
     digitalWrite(motorA8_F, LOW);
     digitalWrite(motorA8_B, HIGH);
 
-    while (true)
-    {
-        if (SERIAL.available() > 0){
-            String data = SERIAL.readStringUntil('\n');
-            if (data == "done"){
-                break;
-            }
-        }
-    }
 
     // Sender_serializeJson("waiting");
-    // for (int round = 0; round < 10; round++)
+    // for (int round = 0; round < 1; round++)
     // {
     //     for (int i = 1; i < 4; i++)
     //     {
