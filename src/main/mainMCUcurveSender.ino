@@ -16,10 +16,17 @@ Pneumatic PneumaticStore(pneumaticStore);
 
 #define SERIAL Serial
 
-int speedx = 800;
+// int speedx = 800;
+// int stepperLiftPositionA = 0;
+// int stepperLiftPositionB = -150;
+// int stepperLiftPositionC = -1160;
+
+
+// TODO Check steeper direction
+int speedx = -800;
 int stepperLiftPositionA = 0;
-int stepperLiftPositionB = -150;
-int stepperLiftPositionC = -1160;
+int stepperLiftPositionB = 150;
+int stepperLiftPositionC = 1160;
 
 String res = "";
 /*
@@ -67,7 +74,7 @@ String Receiver()
 
 
 void setHomeLift(){
-    StepperLift.setSpeed(800);
+    StepperLift.setSpeed(speedx);
     while (digitalRead(liftLimitDOWN)){
         StepperLift.runSpeed();
     }
@@ -82,6 +89,8 @@ void main_(){
     digitalWrite(motorA7_B, HIGH);
     digitalWrite(motorA8_F, LOW);
     digitalWrite(motorA8_B, HIGH);
+
+    setHomeLift();
 
     // A => B
     // StepperLift.setSpeed(-speedx);
@@ -128,14 +137,14 @@ void main_(){
         digitalWrite(motorA8_F, HIGH);
         digitalWrite(motorA8_B, LOW);
     }
-    if (PneumaticB.isOn()) {
+    else if (PneumaticB.isOn()) {
         PneumaticB.offPneumatic();
         digitalWrite(motorA7_F, LOW);
         digitalWrite(motorA7_B, HIGH);
         digitalWrite(motorA8_F, LOW);
         digitalWrite(motorA8_B, HIGH);
     }
-    if (PneumaticC.isOn()) {
+    else if (PneumaticC.isOn()) {
         PneumaticC.offPneumatic();
         digitalWrite(motorA7_F, HIGH);
         digitalWrite(motorA7_B, LOW);

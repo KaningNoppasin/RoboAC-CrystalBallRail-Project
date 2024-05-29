@@ -15,10 +15,15 @@ Pneumatic PneumaticStore(pneumaticStore);
 
 #define SERIAL Serial
 
-int speedx = 800;
+// int speedx = 800;
+// int stepperLiftPositionA = 0;
+// int stepperLiftPositionB = -150;
+// int stepperLiftPositionC = -1190;
+
+int speedx = -800;
 int stepperLiftPositionA = 0;
-int stepperLiftPositionB = -150;
-int stepperLiftPositionC = -1190;
+int stepperLiftPositionB = 150;
+int stepperLiftPositionC = 1190;
 
 // 0 => 210 => 1150
 // 0 => -170 => -1190
@@ -67,7 +72,7 @@ String Receiver()
 }
 
 void setHomeLift(){
-    StepperLift.setSpeed(800);
+    StepperLift.setSpeed(speedx);
     while (digitalRead(liftLimitDOWN)){
         StepperLift.runSpeed();
     }
@@ -83,6 +88,8 @@ void main_(){
     digitalWrite(motorA8_F, LOW);
     digitalWrite(motorA8_B, HIGH);
 
+    setHomeLift();
+
     // A => B
     // StepperLift.setSpeed(-speedx);
     // while (StepperLift.currentPosition() != stepperLiftPositionB) StepperLift.runSpeed();
@@ -96,6 +103,7 @@ void main_(){
     //     // Serial.println(data);
     // }
 
+// TODO: OPEN Comment This Code
     while (true){
         String data = Receiver();
         if (data == "done\n") break;
@@ -106,13 +114,13 @@ void main_(){
     while (true)
     {
         // ! Bug !!!
-        // if (!digitalRead(switchS2A)){
-        //     // TODO: Step3
-        //     // PneumaticA OFF
-        //     PneumaticA.onPneumatic();
-        //     break;
-        // }
-        if (!digitalRead(switchS3B)){
+        if (!digitalRead(switchS2A)){
+            // TODO: Step3
+            // PneumaticA OFF
+            PneumaticA.onPneumatic();
+            break;
+        }
+        else if (!digitalRead(switchS3B)){
             // TODO: Step3
             // PneumaticB OFF
             PneumaticB.onPneumatic();
@@ -372,10 +380,11 @@ void setup(){
 
 
     // Sender_serializeJson("waiting");
-    // for (int round = 0; round < 1; round++)
+    // for (int round = 0; round < 5; round++)
     // {
     //     for (int i = 1; i < 4; i++)
     //     {
+    //         setHomeLift();
     //         main_input(i);
     //     }
     // }
@@ -383,6 +392,7 @@ void setup(){
 
 void loop(){
     // getInputValue();
+
     main_();
 
     // serialStep();
