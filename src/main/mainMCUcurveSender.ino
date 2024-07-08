@@ -16,9 +16,14 @@ Pneumatic PneumaticStore(pneumaticStore);
 #define SERIAL Serial
 
 int speedx = -800;
+// int stepperLiftPositionA = 0;
+// int stepperLiftPositionB = 150;
+// int stepperLiftPositionC = 1160;
+
+int speedx = 800;
 int stepperLiftPositionA = 0;
-int stepperLiftPositionB = 150;
-int stepperLiftPositionC = 1160;
+int stepperLiftPositionB = -150;
+int stepperLiftPositionC = -1180;
 
 void setHomeLift(){
     StepperLift.setSpeed(speedx);
@@ -103,7 +108,8 @@ void main_(){
 void setup(){
     Serial.begin(115200);
     SERIAL.begin(115200);
-    for (int i = 0; i < sizeof(pinIN) / sizeof(pinIN[0]); i++) pinMode(pinIN[i], INPUT);
+    // for (int i = 0; i < sizeof(pinIN) / sizeof(pinIN[0]); i++) pinMode(pinIN[i], INPUT);
+    for (int i = 0; i < sizeof(pinIN) / sizeof(pinIN[0]); i++) pinMode(pinIN[i], INPUT_PULLUP);
     for (int i = 0; i < sizeof(pinOUT) / sizeof(pinOUT[0]); i++) pinMode(pinOUT[i], OUTPUT);
     StepperLift.setLimitPositivePosition(500);
     StepperLift.setLimitNegativePosition(1350);
