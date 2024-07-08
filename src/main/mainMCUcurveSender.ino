@@ -15,7 +15,7 @@ Pneumatic PneumaticStore(pneumaticStore);
 
 #define SERIAL Serial
 
-int speedx = -800;
+// int speedx = -800;
 // int stepperLiftPositionA = 0;
 // int stepperLiftPositionB = 150;
 // int stepperLiftPositionC = 1160;
@@ -23,7 +23,7 @@ int speedx = -800;
 int speedx = 800;
 int stepperLiftPositionA = 0;
 int stepperLiftPositionB = -150;
-int stepperLiftPositionC = -1180;
+int stepperLiftPositionC = -1200;
 
 void setHomeLift(){
     StepperLift.setSpeed(speedx);
