@@ -93,11 +93,19 @@ void main_(){
     setHomeLift();
     delay(4000);
 
-    SERIAL.println("done");
+    // SERIAL.println("done");
+    // delay(500);
+
+    // while (true){
+    //     if (SERIAL.readStringUntil('\n') == "start") break;
+    // }
+    // TODO : try this
+    SERIAL.write("done\n");
     delay(500);
 
     while (true){
-        if (SERIAL.readStringUntil('\n') == "start") break;
+        String data = Receiver();
+        if (data == "start\n") break;
     }
 
     PneumaticStore.onPneumatic();

@@ -41,8 +41,12 @@ void main_(){
 
     setHomeLift();
 
+    // while (true){
+    //     if (SERIAL.readStringUntil('\n') == "done") break;
+    // }
     while (true){
-        if (SERIAL.readStringUntil('\n') == "done") break;
+        String data = Receiver();
+        if (data == "done\n") break;
     }
 
     while (true){
@@ -62,7 +66,9 @@ void main_(){
 
     delay(5000);
 
-    SERIAL.println("start");
+    // SERIAL.println("start");
+    SERIAL.write("start\n");
+
 
     if (PneumaticA.isOn()) {
         PneumaticA.offPneumatic();
