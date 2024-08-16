@@ -15,18 +15,42 @@ Pneumatic PneumaticStore(pneumaticStore);
 
 #define SERIAL Serial
 
-// int speedx = -800;
-// int stepperLiftPositionA = 0;
-// int stepperLiftPositionB = 150;
-// int stepperLiftPositionC = 1160;
-
 int speedx = 800;
 int stepperLiftPositionA = 0;
-int stepperLiftPositionB = -150;
-int stepperLiftPositionC = -1200;
+int stepperLiftPositionB = 150;
+int stepperLiftPositionC = 1200;
+
+
+String Receiver()
+{
+    const int bufferSize = 64;
+    static char buffer[bufferSize];
+    static int index = 0;
+
+    while (SERIAL.available() > 0)
+    {
+        char incomingByte = SERIAL.read();
+
+        if (index < bufferSize - 1)
+        {
+            buffer[index++] = incomingByte;
+        }
+
+        if (incomingByte == '\n')
+        {
+            buffer[index] = '\0';
+            String data = String(buffer);
+            index = 0;
+            return data;
+        }
+    }
+    return "";
+}
+
+
 
 void setHomeLift(){
-    StepperLift.setSpeed(speedx);
+    StepperLift.setSpeed(-speedx);
     while (digitalRead(liftLimitDOWN)){
         StepperLift.runSpeed();
     }
@@ -82,7 +106,7 @@ void main_(){
         digitalWrite(motorA8_B, HIGH);
     }
 
-    StepperLift.setSpeed(-speedx);
+    StepperLift.setSpeed(speedx);
     while (StepperLift.currentPosition() != stepperLiftPositionC) StepperLift.runSpeed();
     delay(500);
 
@@ -93,13 +117,6 @@ void main_(){
     setHomeLift();
     delay(4000);
 
-    // SERIAL.println("done");
-    // delay(500);
-
-    // while (true){
-    //     if (SERIAL.readStringUntil('\n') == "start") break;
-    // }
-    // TODO : try this
     SERIAL.write("done\n");
     delay(500);
 
@@ -116,19 +133,19 @@ void main_(){
 void setup(){
     Serial.begin(115200);
     SERIAL.begin(115200);
-    // for (int i = 0; i < sizeof(pinIN) / sizeof(pinIN[0]); i++) pinMode(pinIN[i], INPUT);
+
     for (int i = 0; i < sizeof(pinIN) / sizeof(pinIN[0]); i++) pinMode(pinIN[i], INPUT_PULLUP);
     for (int i = 0; i < sizeof(pinOUT) / sizeof(pinOUT[0]); i++) pinMode(pinOUT[i], OUTPUT);
     StepperLift.setLimitPositivePosition(500);
     StepperLift.setLimitNegativePosition(1350);
 
-    setHomeLift();
-    delay(500);
-
     digitalWrite(motorA7_F, LOW);
     digitalWrite(motorA7_B, HIGH);
     digitalWrite(motorA8_F, LOW);
     digitalWrite(motorA8_B, HIGH);
+
+    setHomeLift();
+    delay(500);
 }
 
 void loop(){
