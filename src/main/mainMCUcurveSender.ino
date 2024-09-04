@@ -58,6 +58,14 @@ void setHomeLift(){
     StepperLift.setCurrentPosition(0);
 }
 
+void liftGoUP(){
+    StepperLift.setSpeed(speedx);
+    while (digitalRead(liftLimitUP)){
+        StepperLift.runSpeed();
+    }
+    StepperLift.setSpeed(0);
+}
+
 void main_(){
     digitalWrite(motorA7_F, LOW);
     digitalWrite(motorA7_B, HIGH);
@@ -106,8 +114,9 @@ void main_(){
         digitalWrite(motorA8_B, HIGH);
     }
 
-    StepperLift.setSpeed(speedx);
-    while (StepperLift.currentPosition() != stepperLiftPositionC) StepperLift.runSpeed();
+    // StepperLift.setSpeed(speedx);
+    // while (StepperLift.currentPosition() != stepperLiftPositionC) StepperLift.runSpeed();
+    liftGoUP();
     delay(500);
 
     PneumaticKick.onPneumatic();

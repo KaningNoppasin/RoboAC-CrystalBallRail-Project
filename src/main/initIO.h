@@ -48,10 +48,10 @@ MA8-----
 // limit Switch => lift
 #define switchS5 A2
 
-#define LimitStore A1
 
 // * Use this One Only | This Sensor will be set Zero Stepper
 #define liftLimitDOWN A0
+#define liftLimitUP A1
 
 
 int pinIN[7] = {
@@ -59,7 +59,7 @@ int pinIN[7] = {
                 switchS2A,switchS3B,switchS4C,
                 switchS5,
                 liftLimitDOWN,
-                LimitStore,
+                liftLimitUP,
                 };
 int pinOUT[4] = {
                 motorA7_F,motorA7_B,
