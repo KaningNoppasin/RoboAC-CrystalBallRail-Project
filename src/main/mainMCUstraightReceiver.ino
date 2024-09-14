@@ -18,6 +18,7 @@ int speedx = 800;
 int stepperLiftPositionA = 0;
 int stepperLiftPositionB = 150;
 int stepperLiftPositionC = 1180;
+int debounceDelay = 500;
 
 
 String Receiver()
@@ -57,6 +58,19 @@ void setHomeLift(){
     StepperLift.setCurrentPosition(0);
 }
 
+void resetStage(){
+    PneumaticStore.onPneumatic();
+    delay(10000);
+    PneumaticStore.offPneumatic();
+    // Reset Stepper
+    setHomeLift();
+    delay(500);
+    // Reset Motor
+    digitalWrite(motorA7_F, LOW);
+    digitalWrite(motorA7_B, HIGH);
+    digitalWrite(motorA8_F, LOW);
+    digitalWrite(motorA8_B, HIGH);
+}
 void liftGoUP(){
     StepperLift.setSpeed(speedx);
     while (digitalRead(liftLimitUP)){
@@ -80,14 +94,23 @@ void main_(){
 
     while (true){
         if (!digitalRead(switchS2A)){
+            // Debounce
+            delay(debounceDelay);
+            if (digitalRead(switchS2A)) continue;
             PneumaticA.onPneumatic();
             break;
         }
         else if (!digitalRead(switchS3B)){
+            // Debounce
+            delay(debounceDelay);
+            if (digitalRead(switchS3B)) continue;
             PneumaticB.onPneumatic();
             break;
         }
         else if (!digitalRead(switchS4C)){
+            // Debounce
+            delay(debounceDelay);
+            if (digitalRead(switchS4C)) continue;
             PneumaticC.onPneumatic();
             break;
         }
@@ -145,14 +168,15 @@ void setup(){
     for (int i = 0; i < sizeof(pinOUT) / sizeof(pinOUT[0]); i++) pinMode(pinOUT[i], OUTPUT);
     StepperLift.setLimitPositivePosition(500);
     StepperLift.setLimitNegativePosition(1350);
+    resetStage();
 
-    digitalWrite(motorA7_F, LOW);
-    digitalWrite(motorA7_B, HIGH);
-    digitalWrite(motorA8_F, LOW);
-    digitalWrite(motorA8_B, HIGH);
+    // digitalWrite(motorA7_F, LOW);
+    // digitalWrite(motorA7_B, HIGH);
+    // digitalWrite(motorA8_F, LOW);
+    // digitalWrite(motorA8_B, HIGH);
 
-    setHomeLift();
-    delay(500);
+    // setHomeLift();
+    // delay(500);
 }
 
 void loop(){
